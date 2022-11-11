@@ -45,6 +45,7 @@ function initializeServiceWorker() {
   // We first must register our ServiceWorker here before any of the code in
   // sw.js is executed.
   // B1. TODO - Check if 'serviceWorker' is supported in the current browser
+  
   // B2. TODO - Listen for the 'load' event on the window object.
   // Steps B3-B6 will be *inside* the event listener's function created in B2
   // B3. TODO - Register '/sw.js' as a service worker (The MDN article
@@ -54,6 +55,43 @@ function initializeServiceWorker() {
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
+  // if ('serviceWorker' in navigator) {
+  //   // Supported!
+  //   return;
+  // }
+  // window.addEventListener("load", async (event) => {
+  //   try {
+  //     const registration = await navigator.serviceWorker.register("/sw.js", {
+  //       scope: "/",
+  //     });
+  //     if (registration.active) {
+  //       console.log("Service worker active");
+  //     }
+  //   } catch (error){
+  //     console.error(`Registration failed with ${error}`);
+  //   }
+  // });
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async (event) => {
+      try {
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
+        });
+        if (registration.installing) {
+          console.log("Service worker installing");
+        } else if (registration.waiting) {
+          console.log("Service worker installed");
+        } else if (registration.active) {
+          console.log("Service worker active");
+        }
+        // if (registration.active) {
+        //   console.log("Service worker active");
+        // }
+      } catch (error) {
+        console.error(`Registration failed with ${error}`);
+      }
+    });
+  }
 }
 
 /**
@@ -68,10 +106,16 @@ async function getRecipes() {
   // EXPOSE - START (All expose numbers start with A)
   // A1. TODO - Check local storage to see if there are any recipes.
   //            If there are recipes, return them.
+  let tempRecipes = localStorage.getItem("recipes");
+  if(tempRecipes!=null)
+  {
+    return JSON.parse(localStorage.getItem("recipes"));
+  }
   /**************************/
   // The rest of this method will be concerned with requesting the recipes
   // from the network
   // A2. TODO - Create an empty array to hold the recipes that you will fetch
+  const recipes = [];
   // A3. TODO - Return a new Promise. If you are unfamiliar with promises, MDN
   //            has a great article on them. A promise takes one parameter - A
   //            function (we call these callback functions). That function will
@@ -100,6 +144,54 @@ async function getRecipes() {
   //            resolve() method.
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
+  let Promise1 = new Promise(async(resolve, reject) => {
+    // fetch(RECIPE_URLS);
+    // setTimeout(() => {
+    // resolve('resolved');
+    // }, 2000);
+    for(let i=0; i<RECIPE_URLS.length; i++){
+      try {
+        // //const response = await fetch(RECIPE_URLS[i]);
+        // Promise1.then(await fetch(RECIPE_URLS[i]))
+        // //const result = await response.json();
+        // Promise1.then(await response.json());
+        // recipes[i]=result;
+        console.log("1");
+        const response = await fetch(RECIPE_URLS[i]);
+        const result = await response.json();
+        recipes.push(result);
+        if(i==RECIPE_URLS.length-1){
+          saveRecipesToStorage(recipes);
+          resolve(recipes);
+        }
+      } catch (error) {
+        console.error(error);
+        reject(error);
+      }
+    }
+  });
+  // Promise1.then(async (success) => {
+  //   for(let i=0; i<RECIPE_URLS.length; i++){
+  //     try {
+  //       // //const response = await fetch(RECIPE_URLS[i]);
+  //       // Promise1.then(await fetch(RECIPE_URLS[i]))
+  //       // //const result = await response.json();
+  //       // Promise1.then(await response.json());
+  //       // recipes[i]=result;
+  //       Promise1.then((url) =>
+  //         fetch(RECIPE_URLS[i])
+  //           .then((res) => res.json())
+  //           .then((data) => {
+  //         recipes.push(data);
+  //       }),
+  //       )
+  //     } catch (error) {
+  //       console.error(error);
+  //       reject(error);
+  //     }
+
+  //   }
+  // });
 }
 
 /**
