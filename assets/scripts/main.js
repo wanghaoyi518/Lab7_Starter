@@ -154,7 +154,7 @@ async function getRecipes() {
         // //const result = await response.json();
         // Promise1.then(await response.json());
         // recipes[i]=result;
-        console.log("1");
+        //console.log("1");
         const response = await fetch(RECIPE_URLS[i]);
         const result = await response.json();
         recipes.push(result);
