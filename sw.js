@@ -50,6 +50,8 @@ self.addEventListener('fetch', function (event) {
 
       return networkResponse;
     });
+    // if(cachedResponse)return cachedResponse;
+    // else return networkResponse;
     return cachedResponse || fetchedResponse;
   }));
 
